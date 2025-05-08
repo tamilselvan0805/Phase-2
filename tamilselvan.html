@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<title>Indian House Price Forecaster</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(135deg, #f9f7e8 0%, #fbe8a6 100%);
+    font-family: 'Poppins', sans-serif;
+    color: #333;
+    height: 100%;
+    overflow: hidden;
+  }
+  .container {
+    max-width: 350px;
+    height: 600px;
+    background: #fff;
+    margin: 20px auto;
+    border-radius: 15px;
+    box-shadow: 0 15px 40px rgba(219, 178, 64, 0.4);
+    padding: 25px 20px 30px 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  h1 {
+    text-align: center;
+    margin-bottom: 15px;
+    font-weight: 600;
+    font-size: 1.75rem;
+    color: #805b00;
+  }
+  form {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding-right: 10px;
+  }
+  label {
+    display: block;
+    margin-top: 15px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #6b4e00;
+  }
+  input, select {
+    width: 100%;
+    padding: 8px 10px;
+    margin-top: 6px;
+    border-radius: 8px;
+    border: 1.8px solid #c9b866;
+    font-size: 1rem;
+    transition: border-color 0.25s ease;
+    background: #fffbea;
+  }
+  input:focus, select:focus {
+    outline: none;
+    border-color: #d9a820;
+    box-shadow: 0 0 6px #d9a820;
+  }
+  button {
+    margin-top: 20px;
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 10px;
+    background: #d9a820;
+    color: white;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(217, 168, 32, 0.6);
+    transition: background 0.25s ease;
+  }
+  button:hover {
+    background: #b78700;
+  }
+  .result {
+    margin-top: 25px;
+    background: #fff8c1;
+    border-radius: 12px;
+    padding: 16px;
+    font-size: 1.2rem;
+    font-weight: 700;
+    text-align: center;
+    color: #6b4e00;
+    box-shadow: inset 0 0 8px #dfc94e;
+  }
+  .footer {
+    font-size: 0.8rem;
+    color: #7a6e23;
+    text-align: center;
+    margin-top: 10px;
+    user-select: none;
+  }
+  /* Scrollbar for mobile */
+  form::-webkit-scrollbar {
+    width: 6px;
+  }
+  form::-webkit-scrollbar-thumb {
+    background-color: #d9a820;
+    border-radius: 3px;
+  }
+  /* Responsive tweaks */
+  @media(max-width: 360px) {
+    .container {
+      max-width: 320px;
+      padding: 20px 15px 25px 15px;
+    }
+  }
+</style>
+</head>
+<body>
+  <div class="container" role="main" aria-label="Indian House Price Forecasting Application">
+    <h1>Indian House Price Forecaster</h1>
+    <form id="priceForm" aria-describedby="form-instr">
+      <div id="form-instr" style="font-size:0.85rem; color:#6b4e00; margin-bottom:12px;">
+        Enter house details to forecast the estimated price (in ₹)
+      </div>
+      <label for="bedrooms">Bedrooms</label>
+      <input id="bedrooms" name="bedrooms" type="number" min="0" max="10" value="3" required aria-required="true" />
+      
+      <label for="bathrooms">Bathrooms</label>
+      <input id="bathrooms" name="bathrooms" type="number" min="0" max="10" value="2" required aria-required="true" />
+      
+      <label for="size">Size (sq ft)</label>
+      <input id="size" name="size" type="number" min="100" max="20000" value="1200" required aria-required="true" />
+      
+      <label for="location">Location</label>
+      <select id="location" name="location" required aria-required="true">
+        <option value="" disabled selected>Select location</option>
+        <option value="metro">Metro (e.g Mumbai, Delhi)</option>
+        <option value="urban">Urban</option>
+        <option value="rural">Rural</option>
+      </select>
+
+      <label for="yearBuilt">Year Built</label>
+      <input id="yearBuilt" name="yearBuilt" type="number" min="1900" max="2024" value="2010" required aria-required="true" />
+
+      <button type="submit" aria-label="Forecast House Price">Forecast Price</button>
+    </form>
+    <div class="result" id="result" aria-live="polite" aria-atomic="true" role="region">Estimated price: ₹—</div>
+    <div class="footer">
+      &copy; 2024 Indian House Price Forecaster - Smart Regression
+    </div>
+  </div>
+
+  <script>
+    (function(){
+      // Mock multiple linear regression coefficients tailored to Indian real estate market (approximate)
+      // Price (₹) = intercept + (bedrooms * coef1) + (bathrooms * coef2) + (size * coef3) + (location factor) + (yearBuilt * coef5)
+      
+      const locationFactors = {
+        'metro': 800000,  // higher premium for metro cities
+        'urban': 400000,
+        'rural': 100000
+      };
+
+      const intercept = 1500000;
+      const coefBedrooms = 500000;
+      const coefBathrooms = 400000;
+      const coefSize = 3000;  // ₹3000 per sqft approx
+      const coefYearBuilt = 20000; // Newer house adds value
+
+      const priceForm = document.getElementById('priceForm');
+      const resultDiv = document.getElementById('result');
+      const locationSelect = document.getElementById('location');
+
+      priceForm.addEventListener('submit', function(event) {
+        event.preventDefault();
+        const bedrooms = parseInt(priceForm.bedrooms.value);
+        const bathrooms = parseInt(priceForm.bathrooms.value);
+        const size = parseFloat(priceForm.size.value);
+        const location = priceForm.location.value;
+        const yearBuilt = parseInt(priceForm.yearBuilt.value);
+        const currentYear = new Date().getFullYear();
+
+        if (isNaN(bedrooms) || bedrooms < 0 || bedrooms > 10) {
+          alert('Please enter a valid number of bedrooms (0-10).');
+          priceForm.bedrooms.focus();
+          return;
+        }
+        if (isNaN(bathrooms) || bathrooms < 0 || bathrooms > 10) {
+          alert('Please enter a valid number of bathrooms (0-10).');
+          priceForm.bathrooms.focus();
+          return;
+        }
+        if (isNaN(size) || size < 100 || size > 20000) {
+          alert('Please enter a valid house size in sq ft (100-20000).');
+          priceForm.size.focus();
+          return;
+        }
+        if (!locationFactors.hasOwnProperty(location)) {
+          alert('Please select a location from the list.');
+          locationSelect.focus();
+          return;
+        }
+        if (isNaN(yearBuilt) || yearBuilt < 1900 || yearBuilt > currentYear) {
+          alert('Please enter a valid year built between 1900 and ' + currentYear + '.');
+          priceForm.yearBuilt.focus();
+          return;
+        }
+
+        // Age depreciation factor: Older houses lose value (₹ 40k per year)
+        const age = currentYear - yearBuilt;
+        const ageDepreciation = age * 40000; // ₹40,000 reduced per year old
+
+        let estimatedPrice = intercept +
+          (bedrooms * coefBedrooms) +
+          (bathrooms * coefBathrooms) +
+          (size * coefSize) +
+          locationFactors[location] +
+          (yearBuilt * coefYearBuilt) -
+          ageDepreciation;
+
+        estimatedPrice = Math.max(0, estimatedPrice);
+
+        // Format as Indian rupees currency string with digit grouping
+        const formattedPrice = estimatedPrice.toLocaleString('en-IN', {
+          style: 'currency',
+          currency: 'INR',
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 0
+        });
+
+        resultDiv.textContent = 'Estimated Price: ' + formattedPrice;
+      });
+
+      // Set default location
+      locationSelect.value = 'urban';
+    })();
+  </script>
+</body>
+</html>
+</content>
+</create_file>
